@@ -35,19 +35,26 @@ class Board:
 
 class mctsNode:
 
-    def __init__(self, _parent, _board):
+    def __init__(self, _parent, _board, move):
         self.Q = 0
         self.N = 0
         self.children = []
         self.parent = _parent
         self.leaf = True
         self.size = len(_board)
+        self.move = move
 
         self.options = []
         #generate options (MAYBE)
 
         # we want board to be a matrix of -1,0,1s
         self.board = _board
+
+    def applyMove(self):
+        self.board[self.move[0]][self.move[1]] = 1
+
+    def getMove(self):
+        return self.move
 
 
     def addChild(self, _child):
@@ -64,10 +71,13 @@ class mctsNode:
         return self.parent is None
 
     def UCT(self, c):
-        return (self.Q + self.N) + c*sqrt(2*log(self.parent.N)/self.N)
+        return (self.Q / self.N) + c*sqrt(2*log(self.parent.N)/self.N)
 
     def Robust(self):
         return self.N
+
+    def BestRobust(self):
+        return (self.Q,self.N)
 
     def getBoard(self):
         return self.board

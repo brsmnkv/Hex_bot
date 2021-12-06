@@ -1,21 +1,32 @@
 from mctsNode import mctsNode
 import random
+from copy import deepcopy
 
-c = 0.5
+
 
 # Increase this a bit in any case
-fixedBranchFactor = 3
+# fixedBranchFactor = 3
 
 # timing
 
 
-def mctsSearch(root, iterations):
+def mctsSearch(root, iterations, playouts, _c):
+    c = _c
+    playoutReps = playouts
+
     rootNode = root
 
+    # print("enter mctsSearch")   #pprriinntt
+
     for i in range(iterations):
+
+        # print("iteration: " + str(i))   #pprriinntt
+        # print("enter loop with iteration = " + str(i))   #pprriinntt
         
         # Selection
-        selectedNode = _treePolicy(rootNode, c)
+        selectedNode, depth = _treePolicy(rootNode, c, 1)
+
+        # print("done selection, selected node's board: " + str(selectedNode.getBoard()))   #pprriinntt
 
         # Expansion
 
@@ -23,30 +34,28 @@ def mctsSearch(root, iterations):
 
         options = selectedNode.getOptions()
 
-        for i in range(fixedBranchFactor):
+        for i in range(int(len(options)/depth)):
             child, choice = _expandPolicy(selectedNode, options)
             options.remove(choice)
             selectedNode.addChild(child)
-
             expanded.append(child)
+
+        # print("Done Expansion - expanded: " + str(expanded))    #pprriinntt
 
         # Playout & Backpropagate for each new child
         
         for child in expanded:
-            win = _playout(child)  
-            # win is 0 or 1
+            for reps in range(playoutReps):
+                win = _playout(child)  
+                # win is 0 or 1
+                _backPropagate(child, win)
 
-            _backPropagate(child, win)
-
-    return _best(rootNode)
+    return _values(rootNode)
 
 
 
-def _treePolicy(root, c):
-    if(root.isLeaf()):
-        return root
-    else:
-        currentNode = root
+def _treePolicy(root, c, i):
+    currentNode = root
     while(not currentNode.isLeaf()):
         currentChildren = currentNode.getChildren()
 
@@ -54,8 +63,8 @@ def _treePolicy(root, c):
         # IN THIS CASE WE DO THE GENERALLY AGREED UPON UCT
         # AND THERE ISN'T MUCH TO WONDER ABOUT HERE
         currentNode = max(currentChildren, key=lambda x: x.UCT(c))
-
-    return currentNode
+        i += 1
+    return currentNode, i
 
 def _expandPolicy(selectedNode, options):
 
@@ -66,19 +75,21 @@ def _expandPolicy(selectedNode, options):
     # SO WE CAN BRANCH OUT TO THE IMPORTANT MOVES TO CONSIDER WITHOUT
     # BRANCHING TO UNNECESSARY ONES
 
-    board = selectedNode.getBoard
+    board = selectedNode.getBoard()
 
     choice = random.choice(options)
 
-    board[choice[0]][choice[1]] = 1
+
+    # board[choice[0]][choice[1]] = 1
     
-    nextNode = mctsNode(selectedNode, board)
+    nextNode = mctsNode(selectedNode, deepcopy(board), choice)
+    nextNode.applyMove()
 
     return (nextNode,choice)
 
 def _playout(child):
 
-    board = child.getBoard()
+    board = deepcopy(child.getBoard())
     options = child.getOptions()
     colour = -1
 
@@ -99,14 +110,14 @@ def _backPropagate(node, win):
     node.N += 1
     node.Q += win
     if node.parent:
-        _backPropagate(node.parrent, win)
+        _backPropagate(node.parent, win)
 
 
 
 def _winner(board):
     # CHECK STARTING WITH THE TOP LINE IF THERE IS A CONNECTION TO BOTTOM
-    visited = {}
-    left = {}
+    visited = set()
+    left = set()
 
     for j in range(len(board)):
         if(board[0][j] == 1):
@@ -145,14 +156,24 @@ def _getNeighbours(board, ij):
     elif(x == len(board)-1):
         available[1] = False
         available[2] = False
-    results = []
+    result = []
     for i in range(6):
         if available[i]:
-            result.append(y+I_DISPLACEMENTS[i], x+J_DISPLACEMENTS[i])
-    return results
+            result.append((y+I_DISPLACEMENTS[i], x+J_DISPLACEMENTS[i]))
+    return result
 
 def _best(root):
+    if root.isLeaf():
+        return root
     children = root.getChildren()
     # Ill be returning the robust child for now (child with most visits)
     # thats usually a good idea
     return max(children, key=lambda x: x.Robust())
+
+def _values(root):
+    children = root.getChildren()
+    outputboard = deepcopy(root.getBoard())
+    for child in children:
+        move = child.getMove()
+        outputboard[move[0]][move[1]] = child.BestRobust()
+    return outputboard
