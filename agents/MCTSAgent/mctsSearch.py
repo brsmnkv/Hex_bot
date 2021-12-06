@@ -155,4 +155,4 @@ def _best(root):
     children = root.getChildren()
     # Ill be returning the robust child for now (child with most visits)
     # thats usually a good idea
-    return = max(children, key=lambda x: x.Robust())
+    return max(children, key=lambda x: x.Robust())
