@@ -43,11 +43,11 @@ def mctsSearch(root, iterations):
 
 
 def _treePolicy(root, c):
-    if(root.isLeaf):
+    if(root.isLeaf()):
         return root
     else:
         currentNode = root
-    while(not currentNode.isLeaf):
+    while(not currentNode.isLeaf()):
         currentChildren = currentNode.getChildren()
 
         # HERE WE DECIDE WHICH CHILD TO PICK ON EACH ITERATION
