@@ -39,6 +39,9 @@ class mctsNode:
     def UCT(self, c):
         return (self.Q + self.N) + c*sqrt(2*log(self.parent.N)/self.N)
 
+    def Robust(self):
+        return N
+
     def getBoard(self):
         return self.board
 

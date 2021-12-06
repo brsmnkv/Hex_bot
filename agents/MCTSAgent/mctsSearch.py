@@ -3,14 +3,19 @@ import random
 
 c = 0.5
 
+# Increase this a bit in any case
 fixedBranchFactor = 3
+
+# timing
 
 
 def mctsSearch(root, iterations):
+    rootNode = root
+
     for i in range(iterations):
         
         # Selection
-        selectedNode = _treePolicy(root, c)
+        selectedNode = _treePolicy(rootNode, c)
 
         # Expansion
 
@@ -33,11 +38,15 @@ def mctsSearch(root, iterations):
 
             _backPropagate(child, win)
 
+    return _best(rootNode)
+
 
 
 def _treePolicy(root, c):
-    currentNode = root
-
+    if(root.isLeaf):
+        return root
+    else:
+        currentNode = root
     while(not currentNode.isLeaf):
         currentChildren = currentNode.getChildren()
 
@@ -141,3 +150,9 @@ def _getNeighbours(board, ij):
         if available[i]:
             result.append(y+I_DISPLACEMENTS[i], x+J_DISPLACEMENTS[i])
     return results
+
+def _best(root):
+    children = root.getChildren()
+    # Ill be returning the robust child for now (child with most visits)
+    # thats usually a good idea
+    return = max(children, key=lambda x: x.Robust())
