@@ -9,29 +9,6 @@ A MonteCarloTreeSearch Node class:
 
 from math import sqrt, log
 
-class Board:
-    def __init__(self, _board):
-        self.board = []
-        self.size = len(_board)
-        for i in range(len(_board)):
-            for j in range(len(_board)):
-                self.board.append(_board[i][j])
-
-
-
-    def getPiece(self, i,j):
-        return self.board[i*self.size + j]
-
-    def setPiece(self, piece, i,j):
-        self.board[i*self.size + j] = piece
-
-    def getBoard(self):
-        return self.board
-
-    def size(self):
-        return self.size
-
-        
 
 class mctsNode:
 
@@ -64,7 +41,7 @@ class mctsNode:
         return self.parent is None
 
     def UCT(self, c):
-        return (self.Q + self.N) + c*sqrt(2*log(self.parent.N)/self.N)
+        return (self.Q / self.N) + c*sqrt(2*log(self.parent.N)/self.N)
 
     def Robust(self):
         return self.N
@@ -80,8 +57,23 @@ class mctsNode:
                     options.append((i,j))
         return options
 
-    # def playout(self):
-    #     # playout from this node's board to end
 
-    # def backpropagate(self):
-    #     # update this node's data and then backpropagate to its parent (unless root)    
+# class Board:
+#     def __init__(self, _board):
+#         self.board = []
+#         self.size = len(_board)
+#         for i in range(len(_board)):
+#             for j in range(len(_board)):
+#                 self.board.append(_board[i][j])
+
+#     def getPiece(self, i,j):
+#         return self.board[i*self.size + j]
+
+#     def setPiece(self, piece, i,j):
+#         self.board[i*self.size + j] = piece
+
+#     def getBoard(self):
+#         return self.board
+
+#     def size(self):
+#         return self.size
