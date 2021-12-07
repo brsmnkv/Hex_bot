@@ -50,7 +50,7 @@ def mctsSearch(root, iterations, playouts, _c):
                 # win is 0 or 1
                 _backPropagate(child, win)
 
-    return _values(rootNode)
+    return _best(rootNode)
 
 
 

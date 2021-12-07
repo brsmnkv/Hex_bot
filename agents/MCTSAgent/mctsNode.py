@@ -10,7 +10,7 @@ A MonteCarloTreeSearch Node class:
 from math import sqrt, log
 
 class Board:
-    def __init__(self, _board):
+    def  __init__(self, _board):
         self.board = []
         self.size = len(_board)
         for i in range(len(_board)):
