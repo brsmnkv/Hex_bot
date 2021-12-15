@@ -2,6 +2,20 @@ from Tile import Tile
 from Colour import Colour
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    BLUE = '\x1b[34m'
+    RED = '\x1b[31m'
+    END = '\x1b[0m'
+
 class Board:
     """Class that describes the Hex board."""
 
@@ -125,7 +139,19 @@ class Board:
                 output += leading_spaces
                 leading_spaces += " "
                 for tile in line:
-                    output += Colour.get_char(tile.get_colour()) + " "
+
+                    char = Colour.get_char(tile.get_colour())
+
+                    if char == "R":
+                        output += bcolors.RED
+                    elif char == "B":
+                        output += bcolors.BLUE
+                    else:
+                        pass
+
+                    output += char
+                    output += bcolors.END
+                    # output += Colour.get_char(tile.get_colour()) + " "
                 output += "\n"
 
         return output
