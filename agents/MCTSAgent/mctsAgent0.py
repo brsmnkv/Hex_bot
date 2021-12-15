@@ -5,6 +5,13 @@ from mctsNode import mctsNode
 import mctsSearch_Basic_timelimited as mcts_t
 # from mctsSearch_Basic_timelimited import mctsSearch
 
+# _time = 1
+# _playouts = 1
+# _c = 0.08
+
+_time = 5
+_playouts = 3
+_c = 0.12
 
 class mctsAgent0():
     
@@ -68,19 +75,27 @@ class mctsAgent0():
             return 0
 
     def _make_move(self):
-        # Makes a random valid move. 
-        
-        # 50% chance to change if move == 2
-        if (self._turn_count == 2 and choice([0, 1]) == 1):
-            msg = "SWAP\n"
 
-        # Any other move:
-        else:
+        
+        # # 50% chance to change if move == 2
+        # if (self._turn_count == 2 and choice([0, 1]) == 1):
+        #     msg = "SWAP\n"
+        # # Any other move:
+        # else:
             # move = choice(self._choices)
-            root = mctsNode(None, self._board, None)
-            child = mcts_t.mctsSearch(root,1,1,0.1)
-            move = self._ij(child.getMove())
-            msg = f"{move[0]},{move[1]}\n"
+            # root = mctsNode(None, self._board, None)
+            # child = mcts_t.mctsSearch(root,1,10,0.08)
+            # move = self._ij(child.getMove())
+            # msg = f"{move[0]},{move[1]}\n"
+
+
+        # NO SWAP
+        # RUN MCTS_TIMED
+        root = mctsNode(None, self._board, None)
+        child = mcts_t.mctsSearch(root,_time,_playouts,_c)
+        move = self._ij(child.getMove())
+        msg = f"{move[0]},{move[1]}\n"
+
         
         self._s.sendall(bytes(msg, "utf-8"))
 
