@@ -149,7 +149,7 @@ class Board:
                     else:
                         pass
 
-                    output += char
+                    output += char + " "
                     output += bcolors.END
                     # output += Colour.get_char(tile.get_colour()) + " "
                 output += "\n"
