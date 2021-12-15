@@ -1,6 +1,9 @@
 import socket
 from random import choice
 from time import sleep
+from mctsNode import mctsNode
+import mctsSearch_Basic_timelimited as mcts_t
+# from mctsSearch_Basic_timelimited import mctsSearch
 
 
 class mctsAgent0():
@@ -16,6 +19,7 @@ class mctsAgent0():
         self._colour = ""
         self._turn_count = 1
         self._choices = []
+        self._swapped = 0
         
         states = {
             1: mctsAgent0._connect,
@@ -46,13 +50,17 @@ class mctsAgent0():
             for i in range(self._board_size):
                 self._board.append([])
                 for j in range(self._board_size):
+                    # create a board [][] filled with zeros, and add the i,j to choices
                     self._board[i].append(0)
                     self._choices.append((i, j))
             self._colour = data[2]
 
+            # If "R" (first) or "B" - (second)
+            # TODO first asignment of colours
             if (self._colour == "R"):
                 return 3
             else:
+
                 return 4
 
         else:
@@ -62,15 +70,22 @@ class mctsAgent0():
     def _make_move(self):
         # Makes a random valid move. 
         
+        # 50% chance to change if move == 2
         if (self._turn_count == 2 and choice([0, 1]) == 1):
             msg = "SWAP\n"
+
+        # Any other move:
         else:
-            move = choice(self._choices)
+            # move = choice(self._choices)
+            root = mctsNode(None, self._board, None)
+            child = mcts_t.mctsSearch(root,1,1,0.1)
+            move = self._ij(child.getMove())
             msg = f"{move[0]},{move[1]}\n"
         
         self._s.sendall(bytes(msg, "utf-8"))
 
         return 4
+        
 
     def _wait_message(self):
         # Waits for a new change message when it is not its turn.
@@ -83,10 +98,20 @@ class mctsAgent0():
         else:
 
             if (data[1] == "SWAP"):
+                # swap sides/ board rep
                 self._colour = self.opp_colour()
+                self._swap_board()
+                self._swapped = 1
+
             else:
-                x, y = data[1].split(",")
-                self._choices.remove((int(x), int(y)))
+
+                # TODO a normal x,y move has been accepted - update board
+                i, j = data[1].split(",")
+                self._choices.remove((int(i), int(j)))
+                ni,nj = self._ij((int(i),int(j)))
+                currentp = self._other_player(data[3])
+                self._board[ni][nj] = self._01(currentp)
+
 
             if (data[-1] == self._colour):
                 return 3
@@ -108,6 +133,41 @@ class mctsAgent0():
             return "R"
         else:
             return "None"
+
+    def _other_player(self, colour):
+        if colour == "R":
+            return "B"
+        elif colour == "B":
+            return "R"
+        else:
+            return "None"
+
+    def _ij(self, pair):
+        # returns i,j or j,i depending on R or B for internal board rep access
+        # normal => return pair
+        if self._colour == "R":
+            return pair
+        # reversed => return (pair[1],pair[0])
+        elif self._colour == "B":
+            return (pair[1],pair[0])
+        else:
+            return "None"
+    
+    def _01(self, turn):
+        if turn == self._colour:
+            return 1
+        else:
+            return -1
+
+    def _swap_board(self):
+        # swap board diagonally and change 1s and -1s (for colour change)
+        for i in range(self._board_size):
+            for j in range(i+1, self._board_size):
+                self._board[i][j],self._board[j][i] = self._board[j][i],self._board[i][j]
+        for i in range(self._board_size):  
+            for j in range(self._board_size):
+                self._board[i][j] *= -1
+
 
 
 if (__name__ == "__main__"):
