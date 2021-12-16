@@ -44,6 +44,8 @@ class mctsNode:
         self.size = len(_board)
         self.move = move
 
+        
+
         self.options = []
         #generate options (MAYBE)
 
@@ -56,6 +58,13 @@ class mctsNode:
     def getMove(self):
         return self.move
 
+    def revBoard(self):
+        for i in range(self.size):
+            for j in range(i, self.size):
+                self.board[i][j], self.board[j][i] = self.board[j][i], self.board[i][j]
+        for i in range(self.size):
+            for j in range(self.size):
+                self.board[i][j] *= -1
 
     def addChild(self, _child):
         self.children.append(_child)
